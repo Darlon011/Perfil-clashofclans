@@ -1,7 +1,0 @@
-skyfall-panel/
-├─ api/
-│  └─ clan.js
-├─ public/
-│  └─ index.html
-├─ vercel.json
-├─ package.json
