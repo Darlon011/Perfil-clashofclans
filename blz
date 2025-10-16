@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel SKYFALLツ</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex flex-col items-center p-6">
+
+  <h1 class="text-3xl font-bold mb-6 text-amber-400">⚔️ SKYFALLツ - Painel do Clã</h1>
+
+  <div id="clanInfo" class="bg-gray-800 p-6 rounded-2xl shadow-lg w-full max-w-2xl mb-6 text-center">
+    <p>Carregando informações do clã...</p>
+  </div>
+
+  <div id="memberList" class="w-full max-w-3xl bg-gray-800 p-4 rounded-2xl shadow-lg">
+    <h2 class="text-xl font-semibold mb-4 text-amber-300">Membros do Clã</h2>
+    <div id="members" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+  </div>
+
+  <script>
+    async function getClanData() {
+      const res = await fetch('/api/clan');
+      const data = await res.json();
+
+      document.getElementById('clanInfo').innerHTML = `
+        <img src="${data.badgeUrls.medium}" class="mx-auto mb-3 w-24">
+        <h2 class="text-2xl font-bold">${data.name}</h2>
+        <p class="text-gray-400">${data.description}</p>
+        <p class="mt-3">🏆 <b>${data.clanPoints}</b> pontos | 🔰 Nível ${data.clanLevel}</p>
+        <p>⚔️ ${data.warWins} vitórias | ❌ ${data.warLosses} derrotas | 🤝 ${data.warTies} empates</p>
+        <p class="text-sm mt-2">Liga: ${data.warLeague.name}</p>
+      `;
+
+      document.getElementById('members').innerHTML = data.memberList.map(m => `
+        <div class="bg-gray-700 p-3 rounded-xl text-sm">
+          <p class="font-bold text-amber-300">${m.name}</p>
+          <p>🏅 ${m.role.toUpperCase()}</p>
+          <p>🏆 ${m.trophies} troféus</p>
+          <p>🎁 ${m.donations} doações | 📦 ${m.donationsReceived} recebidas</p>
+        </div>
+      `).join('');
+    }
+
+    getClanData();
+  </script>
+</body>
+</html>
+export default async function handler(req, res) {
+  const CLAN_TAG = "#2YUP2VGRY";
+  const API_TOKEN = process.env.COC_API_TOKEN;
+
+  const response = await fetch(`https://api.clashofclans.com/v1/clans/${encodeURIComponent(CLAN_TAG)}`, {
+    headers: {
+      Authorization: `Bearer ${API_TOKEN}`,
+    },
+  });
+
+  const data = await response.json();
+  res.status(200).json(data);
+}
